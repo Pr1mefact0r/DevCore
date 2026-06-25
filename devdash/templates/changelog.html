@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field_expand, count_chip, empty_state %}
+{% block title %} · Changelog{% endblock %}
+{% block content %}
+
+<div class="page-header dom-dev">
+  <div>
+    <div class="page-title"><span class="dom-tag dom-dev">changelog</span>Narrative log</div>
+    <div class="page-sub">git for the WHY · one entry per shipped change</div>
+  </div>
+  <div class="chart-meta">{{ count_chip('View', rows|length) }}</div>
+</div>
+
+{% set versions = rows | map(attribute='version') | reject('none') | unique | sort | reverse | list %}
+<div class="filter-bar">
+  <div class="fg">
+    <span class="filter-lbl">Version</span>
+    <a href="/changelog" class="fg-opt {% if not version %}active{% endif %}">All</a>
+    {% for v in versions %}
+      {% if v %}
+      <a href="/changelog?version={{ v }}"
+         class="fg-opt {% if version == v %}active{% endif %}">{{ v }}</a>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+
+{% if rows %}
+<div class="dev-grid">
+  {% for c in rows %}
+  <article class="dev-card">
+    <header class="dev-head">
+      <span class="dim">{{ c.date }}</span>
+      {% if c.version %}<span class="tag">{{ c.version }}</span>{% endif %}
+      <span class="scope-tag">{{ c.scope }}</span>
+    </header>
+    <div class="dev-card-title">{{ c.title }}</div>
+    <div class="dev-card-meta">
+      {{ field_expand('Summary', c.summary) }}
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="panel">{{ empty_state('∅', 'No changelog entries match the current filter.') }}</div>
+{% endif %}
+
+{% endblock %}

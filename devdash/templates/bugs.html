@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field_expand, count_chip, empty_state %}
+{% block title %} · Bugs{% endblock %}
+{% block content %}
+
+<div class="page-header dom-dev">
+  <div>
+    <div class="page-title"><span class="dom-tag dom-dev">bugs</span>B### · Bug tracker</div>
+    <div class="page-sub">Append-only · transition status via mark_bug_fixed / mark_bug_wontfix</div>
+  </div>
+  <div class="chart-meta">{{ count_chip('View', rows|length) }}</div>
+</div>
+
+<div class="filter-bar">
+  <div class="fg">
+    <span class="filter-lbl">Status</span>
+    <a href="/bugs"                class="fg-opt {% if not status %}active{% endif %}">All</a>
+    <a href="/bugs?status=open"    class="fg-opt {% if status == 'open' %}active{% endif %}">Open</a>
+    <a href="/bugs?status=fixed"   class="fg-opt {% if status == 'fixed' %}active{% endif %}">Fixed</a>
+    <a href="/bugs?status=wontfix" class="fg-opt {% if status == 'wontfix' %}active{% endif %}">Wontfix</a>
+  </div>
+</div>
+
+{% if rows %}
+<div class="dev-grid">
+  {% for b in rows %}
+  <article class="dev-card status-{{ b.status }}">
+    <header class="dev-head">
+      <span class="code-chip code-dev">{{ b.code }}</span>
+      <span class="dim">{{ b.date }}</span>
+      <span class="scope-tag">{{ b.scope }}</span>
+      {% if b.severity %}<span class="sev sev-{{ b.severity }}">{{ b.severity }}</span>{% endif %}
+      {% if b.status %}<span class="status status-{{ b.status }}">{{ b.status }}</span>{% endif %}
+    </header>
+    <div class="dev-card-title">{{ b.title }}</div>
+    <div class="dev-card-meta">
+      {{ field_expand('Fix', b.fix) }}
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="panel">{{ empty_state('∅', 'No bugs match the current filter.') }}</div>
+{% endif %}
+
+{% endblock %}

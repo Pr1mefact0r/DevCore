@@ -1,0 +1,17 @@
+# dev/publish.conf — where /dev-publish ships the latest v_X.Y deliverable.
+#
+# Copy this to  dev/publish.conf  (which is gitignored), or just run /dev-publish once and
+# let it write the file for you from your answers. After that it never asks again.
+#
+#   TARGET_DIR            the clean PUBLIC repo directory — a sibling of this workshop, no -Dev
+#                         suffix (e.g. workshop  …/MyProject-Dev  →  target  …/MyProject).
+#                         Only the latest v_X.Y/ contents are synced here; never the dev-layer.
+#   REMOTE                the GitHub remote. If it doesn't exist yet, /dev-publish offers to
+#                         `gh repo create` it on the first publish (public vs private is your call).
+#   BRANCH                the branch to push (default: main).
+#   RESOLVE_PLACEHOLDERS  yes only if the v_X.Y deliverable still carries {{PROJECT_NAME}} / {{…}}.
+
+TARGET_DIR=/home/you/ClaudeCode/MyProject
+REMOTE=git@github.com:youruser/MyProject.git
+BRANCH=main
+RESOLVE_PLACEHOLDERS=no

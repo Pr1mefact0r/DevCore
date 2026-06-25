@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field_expand, count_chip, empty_state %}
+{% block title %} · Recognition Keys{% endblock %}
+{% block content %}
+
+<div class="page-header dom-dev">
+  <div>
+    <div class="page-title"><span class="dom-tag dom-dev">recognition_keys</span>Cluster view · visual recall</div>
+    <div class="page-sub">Each canonical key + every finding under it across node-types — reuse-before-mint</div>
+  </div>
+  <div class="chart-meta">{{ count_chip('Keys', clusters|length) }}</div>
+</div>
+
+{% if clusters %}
+<div class="dev-grid">
+  {% for k in clusters %}
+  {#- defensive member resolution: prefer an explicit `members`, else any list-like attr -#}
+  {% set members = k.members if k.members is defined else None %}
+  <article class="dev-card">
+    <header class="dev-head">
+      <span class="code-chip code-dev">⊙ {{ k.key }}</span>
+      {% if k.first_seen is defined and k.first_seen %}<span class="dim">{{ k.first_seen }}</span>{% endif %}
+      {% if k.created_by is defined and k.created_by %}<span class="scope-tag">{{ k.created_by }}</span>{% endif %}
+      {% if members is not none %}
+        <span class="scope-tag">{{ members|length }} member{{ '' if members|length == 1 else 's' }}</span>
+      {% endif %}
+    </header>
+
+    {% if k.text is defined and k.text %}<div class="dev-card-title">{{ k.text }}</div>{% endif %}
+
+    <div class="dev-card-meta">
+      {% if k.definition is defined and k.definition %}{{ field_expand('Definition', k.definition) }}{% endif %}
+
+      {% if members is not none %}
+        {% if members %}
+        <div class="field">
+          <span class="lbl">Cluster</span>
+          <span class="val">
+            {% for m in members %}
+              {#- members may be Rows (kind/code/title/status) or bare code strings -#}
+              {% if m is mapping or m.code is defined %}
+                <span class="code-chip code-dev"
+                      title="{{ m.title if m.title is defined else '' }}{% if m.status is defined and m.status %} · {{ m.status }}{% endif %}">
+                  {%- if m.kind is defined and m.kind %}{{ m.kind }}·{% endif %}{{ m.code if m.code is defined else m }}</span>
+              {% else %}
+                <span class="code-chip code-dev">{{ m }}</span>
+              {% endif %}
+            {% endfor %}
+          </span>
+        </div>
+        {% else %}
+        <div class="field"><span class="lbl">Cluster</span><span class="val dim">— no findings under this key yet —</span></div>
+        {% endif %}
+      {% else %}
+        {#- exact member attribute unknown: render any remaining string/scalar fields gracefully -#}
+        {% for col in k.keys() if col not in ('key', 'text', 'definition', 'first_seen', 'created_by') %}
+          {% if k[col] is not none and k[col] is string %}
+          <div class="field">
+            <span class="lbl">{{ col }}</span>
+            <span class="val">{{ k[col] }}</span>
+          </div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="panel">{{ empty_state('∅', 'No recognition keys yet.') }}</div>
+{% endif %}
+
+{% endblock %}

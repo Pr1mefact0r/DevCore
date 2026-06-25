@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field_expand, count_chip, empty_state %}
+{% block title %} · Observations{% endblock %}
+{% block content %}
+
+<div class="page-header dom-dev">
+  <div>
+    <div class="page-title"><span class="dom-tag dom-dev">observations</span>W### · Watch list</div>
+    <div class="page-sub">Patterns under observation — not yet bugs, not yet decisions</div>
+  </div>
+  <div class="chart-meta">{{ count_chip('View', rows|length) }}</div>
+</div>
+
+<div class="filter-bar">
+  <div class="fg">
+    <span class="filter-lbl">View</span>
+    <a href="/observations"          class="fg-opt {% if not active %}active{% endif %}">All</a>
+    <a href="/observations?active=1" class="fg-opt {% if active %}active{% endif %}">Active</a>
+  </div>
+</div>
+
+{% if rows %}
+<div class="dev-grid">
+  {% for o in rows %}
+  <article class="dev-card status-{{ o.status }}">
+    <header class="dev-head">
+      <span class="code-chip code-dev">{{ o.code }}</span>
+      <span class="dim">{{ o.date }}</span>
+      <span class="scope-tag">{{ o.scope }}</span>
+      {% if o.status %}<span class="status status-{{ o.status }}">{{ o.status.replace('_', ' ') }}</span>{% endif %}
+    </header>
+    <div class="dev-card-title">{{ o.title }}</div>
+    <div class="dev-card-meta">
+      {{ field_expand('Watch for', o.watch_for) }}
+      {% if 'resolution' in o.keys() %}{{ field_expand('Resolution', o.resolution) }}{% endif %}
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="panel">{{ empty_state('∅', 'No observations match the current filter.') }}</div>
+{% endif %}
+
+{% endblock %}

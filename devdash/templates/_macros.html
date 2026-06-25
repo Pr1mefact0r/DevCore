@@ -1,0 +1,123 @@
+{# ============================================================
+   Shared Jinja macros — filter bars + small UI fragments.
+   Keep all UX wiring here so every page is consistent.
+   Ported from an upstream dev-page idiom onto DevDash tokens.
+   ============================================================ #}
+
+{# Render one filter group. Options is a list of (value, label, count_or_none).
+   `current` is the currently-selected value.
+   `param`   is the query-string key to set.
+   `base_qs` is the rest of the query string to preserve (string, joined). #}
+{% macro filter_group(label, param, current, options, base_qs='') %}
+  <div class="fg">
+    <span class="filter-lbl">{{ label }}</span>
+    {% for opt in options %}
+      {% set value = opt[0] %}
+      {% set olabel = opt[1] %}
+      {% set count = opt[2] if opt|length > 2 else None %}
+      <a href="?{% if base_qs %}{{ base_qs }}&{% endif %}{{ param }}={{ value }}"
+         class="fg-opt {% if current == value %}active{% endif %}"
+         {% if count is not none %}data-count="{{ count }}"{% endif %}>
+        {{ olabel }}{% if count is not none %} <span class="fg-count">{{ count }}</span>{% endif %}
+      </a>
+    {% endfor %}
+  </div>
+{% endmacro %}
+
+{# Limit picker — fixed sizes 50/100/200/500. Preserves the rest of the QS. #}
+{% macro limit_picker(current, base_qs='', sizes=[50,100,200,500]) %}
+  <div class="fg">
+    <span class="filter-lbl">Limit</span>
+    {% for n in sizes %}
+      <a href="?{% if base_qs %}{{ base_qs }}&{% endif %}limit={{ n }}"
+         class="fg-opt {% if current == n %}active{% endif %}">{{ n }}</a>
+    {% endfor %}
+  </div>
+{% endmacro %}
+
+{# Inline count chip — small grouped data badge. #}
+{% macro count_chip(label, value, tone='') %}
+  <span class="count-chip {% if tone %}count-{{ tone }}{% endif %}">
+    <span class="count-lbl">{{ label }}</span>
+    <span class="count-val">{{ value }}</span>
+  </span>
+{% endmacro %}
+
+{# Sub-nav row — sibling-page navigation.
+   `items` is a list of (path, label, count_or_none).
+   `domain` is 'dev' (controls active underline color). #}
+{% macro sub_nav(items, current_path, domain='') %}
+<nav class="sub-nav" aria-label="{{ domain }} subnav">
+  {% for it in items %}
+    {% set path = it[0] %}
+    {% set label = it[1] %}
+    {% set count = it[2] if it|length > 2 else None %}
+    <a href="{{ path }}"
+       class="sub-nav-item {% if current_path == path %}active{% if domain %} dom-{{ domain }}{% endif %}{% endif %}">
+      {{ label }}
+      {% if count is not none %}<span class="sn-count">{{ count }}</span>{% endif %}
+    </a>
+  {% endfor %}
+</nav>
+{% endmacro %}
+
+{# Empty state — uniform "nothing yet" panel. #}
+{% macro empty_state(glyph, message) %}
+<div class="empty-state">
+  <span class="empty-glyph">{{ glyph }}</span>
+  <span>{{ message }}</span>
+</div>
+{% endmacro %}
+
+{# Canonical dev sub-nav — SINGLE source of the dev tab list so adding a
+   tab is one edit, not one-per-template. `active_count` shows on the active
+   tab only. Dev-only app: paths carry NO /dev prefix. #}
+{% macro dev_nav(current_path, active_count=None) %}
+{% set items = [
+  ('/',                  'Overview'),
+  ('/decisions',         'Decisions'),
+  ('/bugs',              'Bugs'),
+  ('/changelog',         'Changelog'),
+  ('/observations',      'Observations'),
+  ('/targets',           'Targets'),
+  ('/reminders',         'Reminders'),
+  ('/projectrules',     'Rules (PR)'),
+  ('/adjudications',     'Adjudications (Q)'),
+  ('/resolutions',       'Resolutions (RS)'),
+  ('/investigations',    'Investigations (I)'),
+  ('/ideas',             'Ideas'),
+  ('/recognition-keys',  'Recognition Keys'),
+  ('/health',            'Health'),
+  ('/graph',             'Graph'),
+] %}
+<nav class="sub-nav" aria-label="dev subnav">
+  {% for path, label in items %}
+    <a href="{{ path }}"
+       class="sub-nav-item {% if current_path == path %}active dom-dev{% endif %}">
+      {{ label }}
+      {% if current_path == path and active_count is not none %}<span class="sn-count">{{ active_count }}</span>{% endif %}
+    </a>
+  {% endfor %}
+</nav>
+{% endmacro %}
+
+{# Expandable body field — long text (decision/rationale/verdict/evidence/
+   resolution/findings/description/solution/rule) was unreadable when dumped
+   full into a card. Native <details> (zero-JS): collapsed shows a one-line
+   preview, click expands the full pre-wrapped text in place. Short text renders plain. #}
+{% macro field_expand(label, text, preview_len=150, tone='') %}
+  {% if text %}
+  <div class="field">
+    <span class="lbl">{{ label }}</span>
+    {% set t = text|string %}
+    {% if t|length > preview_len or '\n' in t %}
+    <details class="val-exp">
+      <summary><span class="val-preview {{ tone }}">{{ t.split('\n')[0][:preview_len] }}{% if t|length > preview_len or '\n' in t %} …{% endif %}</span></summary>
+      <span class="val {{ tone }}" style="white-space:pre-wrap;line-height:1.55">{{ t }}</span>
+    </details>
+    {% else %}
+    <span class="val {{ tone }}" style="white-space:pre-wrap;line-height:1.55">{{ t }}</span>
+    {% endif %}
+  </div>
+  {% endif %}
+{% endmacro %}

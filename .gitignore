@@ -1,0 +1,57 @@
+# Language marker (local preference)
+deu
+eng
+fra
+jpn
+
+# Init briefs (private input specs that informed the build, not part of the repo)
+_init/
+
+# Dev subdirectories
+# IMPORTANT: dev/documentation.db is the project's dev memory and MUST be committed.
+# It lives at dev/documentation.db (NOT inside dev/db/), so the patterns below
+# do not affect it. dev/db/ holds throwaway test DBs / sandboxes.
+dev/check/*
+dev/db/*
+!dev/check/.gitkeep
+!dev/db/.gitkeep
+
+# WAL/SHM sidecars from sqlite WAL mode
+dev/documentation.db-wal
+dev/documentation.db-shm
+
+# Runtime data (live in v_X.Y/)
+v_*/bootstrap/raw/
+v_*/docker/.env
+v_*/.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+build/
+*.egg
+
+# Logs
+*.log
+logs/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local settings
+*.local
+settings.local.json
+
+# /dev-publish target — local path + remote, set per machine (see dev/publish.conf.example)
+dev/publish.conf

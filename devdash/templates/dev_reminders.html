@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field_expand, count_chip, empty_state %}
+{% block title %} · Reminders{% endblock %}
+{% block content %}
+
+{% set active_n    = counts.get('active', 0) %}
+{% set resolved_n  = counts.get('resolved', 0) %}
+{% set dismissed_n = counts.get('dismissed', 0) %}
+{% set total_n     = active_n + resolved_n + dismissed_n %}
+
+<div class="page-header dom-dev">
+  <div>
+    <div class="page-title"><span class="dom-tag dom-dev">reminders</span>R### · Conditional triggers</div>
+    <div class="page-sub">Dormant until trigger fires · resolve / dismiss lifecycle · optional watchdog</div>
+  </div>
+  <div class="chart-meta">
+    {{ count_chip('Total',    total_n) }}
+    {{ count_chip('Active',   active_n,   tone='warn' if active_n else '') }}
+    {{ count_chip('Resolved', resolved_n, tone='pos') }}
+  </div>
+</div>
+
+<div class="filter-bar">
+  <div class="fg">
+    <span class="filter-lbl">View</span>
+    <a href="/reminders"          class="fg-opt {% if not active %}active{% endif %}">All <span class="fg-count">{{ total_n }}</span></a>
+    <a href="/reminders?active=1" class="fg-opt {% if active %}active{% endif %}">Active <span class="fg-count">{{ active_n }}</span></a>
+  </div>
+</div>
+
+{% if rows %}
+<div class="dev-grid">
+  {% for r in rows %}
+  <article class="dev-card status-{{ r.status }}">
+    <header class="dev-head">
+      <span class="code-chip code-dev">{{ r.code }}</span>
+      <span class="dim">{{ r.date }}</span>
+      <span class="scope-tag">{{ r.scope }}</span>
+      {% if r.status %}<span class="status status-{{ r.status }}" style="margin-left:auto">{{ r.status }}</span>{% endif %}
+      {% if r.watchdog_fired_at %}<span class="watchdog-fired" title="watchdog fired at {{ r.watchdog_fired_at }}">⚠ watchdog fired</span>{% endif %}
+    </header>
+    <div class="dev-card-title">{{ r.title }}</div>
+    <div class="dev-card-meta">
+      {{ field_expand('Trigger when', r.trigger_when) }}
+      {{ field_expand('Action', r.action) }}
+      {% if r.watchdog_spec %}
+      <div class="field">
+        <span class="lbl">Watchdog</span>
+        <span class="val">{{ r.watchdog_spec }}{% if r.watchdog_fired_at %} · fired {{ r.watchdog_fired_at }}{% endif %}</span>
+      </div>
+      {% endif %}
+      {% if r.resolution %}{{ field_expand('Resolution', r.resolution) }}{% endif %}
+      {% if r.resolved_at %}
+      <div class="field">
+        <span class="lbl">Resolved at</span>
+        <span class="val dim">{{ r.resolved_at }}</span>
+      </div>
+      {% endif %}
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="panel">{{ empty_state('∅', 'No reminders match the current filter.') }}</div>
+{% endif %}
+
+{% endblock %}

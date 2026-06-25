@@ -1,0 +1,59 @@
+name: Architecture Proposal
+description: Propose a design change or new feature
+labels: ["architecture"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for design decisions, new skills, schema changes, or architectural proposals.
+        Decision will be logged in `dev/documentation.db` (table `decisions`) via `/dev-decision-log`.
+
+  - type: input
+    id: version
+    attributes:
+      label: Target Version
+      description: Which version would this land in?
+      placeholder: v_0.1 / v_0.2
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - "[v0.X] Framework (skills, schema, queries)"
+        - "[DEV] Dev environment (dev skills, root CLAUDE.md)"
+        - "[DEV+v0.X] Both"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What problem or situation led to this proposal?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What do you propose? Be specific.
+    validations:
+      required: true
+
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Rationale
+      description: Why this approach? What alternatives were considered?
+    validations:
+      required: true
+
+  - type: textarea
+    id: tradeoffs
+    attributes:
+      label: Tradeoffs
+      description: What are you giving up with this approach?

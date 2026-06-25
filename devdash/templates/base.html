@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080b0f">
+  <title>{{ project_name }} Dev — {% block title %}Overview{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="/static/DevCore_Logo.png">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="scanline" aria-hidden="true"></div>
+
+  <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+
+  <aside class="sidebar" id="sidebar">
+    <a class="sidebar-brand" href="/" aria-label="{{ project_name }} dev memory">
+      <img class="brand-logo" src="/static/DevCore_Logo.png" alt="DevCore">
+    </a>
+
+    {% set NAV = [
+      ('/',                  'Overview',          '◆',  '#f0a500'),
+      ('/decisions',         'Decisions',         'D',  '#9a6ae0'),
+      ('/bugs',              'Bugs',              'B',  '#e0594a'),
+      ('/changelog',         'Changelog',         'CL', '#7a8a9a'),
+      ('/observations',      'Observations',      'W',  '#d0a000'),
+      ('/targets',           'Targets',           'NT', '#4aa3c8'),
+      ('/reminders',         'Reminders',         'R',  '#9aa0aa'),
+      ('/projectrules',     'Rules',             'PR', '#c060a0'),
+      ('/adjudications',     'Adjudications',     'Q',  '#5b8def'),
+      ('/resolutions',       'Resolutions',       'RS', '#3fb27f'),
+      ('/investigations',    'Investigations',    'I',  '#c88c00'),
+      ('/ideas',             'Ideas',             '✦',  '#a3cc3a'),
+      ('/recognition-keys',  'Recognition Keys',  '⬡',  '#00d4ff'),
+      ('/health',            'Health',            '✚',  '#f0a500'),
+      ('/graph',             'Graph',             '◉',  '#00d4ff'),
+    ] %}
+    <nav class="sidebar-nav" aria-label="dev navigation">
+      {% for path, label, badge, color in NAV %}
+      <a href="{{ path }}" class="nav-item {% if request.url.path == path %}active{% endif %}">
+        <span class="nav-badge" style="--k:{{ color }}">{{ badge }}</span>
+        <span class="nav-label">{{ label }}</span>
+        {% if request.url.path == path %}<span class="nav-dot" aria-hidden="true"></span>{% endif %}
+      </a>
+      {% endfor %}
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="footer-row">
+        <span class="footer-tag">SQLite</span>
+        <span class="footer-tag">read-only</span>
+      </div>
+      <div class="footer-time" id="footerClock">—</div>
+      <div class="footer-copy">© <a href="https://github.com/pr1mefact0r" target="_blank" rel="noopener">github.com/pr1mefact0r</a></div>
+    </div>
+  </aside>
+
+  <div class="sidebar-scrim" id="sidebarScrim"></div>
+
+  <div class="main-wrapper">
+    <main>{% block content %}{% endblock %}</main>
+  </div>
+
+  <script>
+    // Mobile hamburger drawer
+    (function () {
+      const sb = document.getElementById('sidebar');
+      const bg = document.getElementById('hamburger');
+      const sc = document.getElementById('sidebarScrim');
+      const close = () => { sb.classList.remove('open'); sc.classList.remove('open'); bg.classList.remove('open'); };
+      const toggle = () => { const o = sb.classList.toggle('open'); sc.classList.toggle('open', o); bg.classList.toggle('open', o); };
+      bg && bg.addEventListener('click', toggle);
+      sc && sc.addEventListener('click', close);
+      sb.querySelectorAll('.nav-item').forEach(a => a.addEventListener('click', close));
+    })();
+    // Footer clock (UTC) — single source of "now"
+    (function () {
+      const el = document.getElementById('footerClock'); if (!el) return;
+      const p = n => String(n).padStart(2, '0');
+      const tick = () => { const d = new Date(); el.textContent = `${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())} UTC`; };
+      tick(); setInterval(tick, 1000);
+    })();
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

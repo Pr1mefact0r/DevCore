@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field_expand, count_chip, empty_state %}
+{% block title %} · Resolutions (RS){% endblock %}
+{% block content %}
+
+<div class="page-header dom-dev">
+  <div>
+    <div class="page-title"><span class="dom-tag dom-dev">resolutions</span>RS### · Reusable precedents</div>
+    <div class="page-sub">How-we-solved-it precedents · recall + revalidate</div>
+  </div>
+  <div class="chart-meta">{{ count_chip('View', rows|length) }}</div>
+</div>
+
+<div class="filter-bar">
+  <div class="fg">
+    <span class="filter-lbl">Scope</span>
+    <a href="/resolutions" class="fg-opt {% if not scope %}active{% endif %}">All</a>
+    {% for s in scopes %}
+      <a href="/resolutions?scope={{ s.scope }}"
+         class="fg-opt {% if scope == s.scope %}active{% endif %}">{{ s.scope }} <span class="fg-count">{{ s.n }}</span></a>
+    {% endfor %}
+  </div>
+</div>
+
+{% if rows %}
+<div class="dev-grid">
+  {% for d in rows %}
+  <article class="dev-card status-{{ d.status }}">
+    <header class="dev-head">
+      <span class="code-chip code-dev">{{ d.code }}</span>
+      <span class="dim">{{ d.date }}</span>
+      <span class="scope-tag">{{ d.scope }}</span>
+      {% if d.status %}<span class="scope-tag">{{ d.status }}</span>{% endif %}
+      {% if d.superseded_by %}<span class="scope-tag">superseded→{{ d.superseded_by }}</span>{% endif %}
+      {% if d.recognition_key %}<span class="scope-tag" title="recognition_key">⊙ {{ d.recognition_key }}</span>{% endif %}
+    </header>
+    <div class="dev-card-title">{{ d.title }}</div>
+    <div class="dev-card-meta">
+      {{ field_expand('Problem', d.problem) }}
+      {{ field_expand('Resolution', d.resolution) }}
+      {% if d.outcome %}{{ field_expand('Outcome', d.outcome) }}{% endif %}
+      {{ field_expand('Reuse-cue', d.reuse) }}
+      {% if d.source %}
+      <div class="field">
+        <span class="lbl">Source</span>
+        <span class="val">{{ d.source }}</span>
+      </div>
+      {% endif %}
+      {% if d.as_of or d.validity %}
+      <div class="field">
+        <span class="lbl">As of / Validity</span>
+        <span class="val">{{ d.as_of or '—' }}{% if d.validity %} · {{ d.validity }}{% endif %}</span>
+      </div>
+      {% endif %}
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="panel">{{ empty_state('∅', 'No resolutions match the current filter.') }}</div>
+{% endif %}
+
+{% endblock %}

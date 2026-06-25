@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% from "_macros.html" import count_chip, empty_state %}
+{% block title %} · Targets{% endblock %}
+{% block content %}
+
+<div class="page-header dom-dev">
+  <div>
+    <div class="page-title"><span class="dom-tag dom-dev">next_targets</span>NT-* · Future work</div>
+    <div class="page-sub">Priority-sorted queue of planned features and fixes</div>
+  </div>
+  <div class="chart-meta">{{ count_chip('View', rows|length) }}</div>
+</div>
+
+<div class="filter-bar">
+  <div class="fg">
+    <span class="filter-lbl">Status</span>
+    <a href="/targets"                    class="fg-opt {% if not status %}active{% endif %}">All</a>
+    <a href="/targets?status=open"        class="fg-opt {% if status == 'open' %}active{% endif %}">Open</a>
+    <a href="/targets?status=in_progress" class="fg-opt {% if status == 'in_progress' %}active{% endif %}">In Progress</a>
+    <a href="/targets?status=done"        class="fg-opt {% if status == 'done' %}active{% endif %}">Done</a>
+    <a href="/targets?status=superseded"  class="fg-opt {% if status == 'superseded' %}active{% endif %}">Superseded</a>
+  </div>
+</div>
+
+{% if rows %}
+<div class="dev-grid">
+  {% for t in rows %}
+  <article class="dev-card status-{{ t.status }}">
+    <header class="dev-head">
+      <span class="prio prio-{{ t.priority }}">{{ t.priority }}</span>
+      {% if t.code %}<span class="code-chip code-dev">{{ t.code }}</span>{% else %}<span class="dim">#{{ t.id }}</span>{% endif %}
+      <span class="dim">{{ t.date }}</span>
+      <span class="scope-tag">{{ t.scope }}</span>
+      {% if t.status %}<span class="status status-{{ t.status }}">{{ t.status.replace('_', ' ') }}</span>{% endif %}
+    </header>
+    <div class="dev-card-title">{{ t.title }}</div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="panel">{{ empty_state('∅', 'No targets match the current filter.') }}</div>
+{% endif %}
+
+{% endblock %}

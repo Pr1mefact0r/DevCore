@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "_macros.html" import count_chip, empty_state %}
+{% block title %} · Health{% endblock %}
+{% block content %}
+
+<div class="page-header dom-dev">
+  <div>
+    <div class="page-title"><span class="dom-tag dom-dev">health</span>Staleness &amp; revalidation</div>
+    <div class="page-sub">A silently-stale finding made LOUD, sorted by need-attention — drives revalidation instead of waiting for recall to stumble on rot.</div>
+  </div>
+  <div class="chart-meta">{{ count_chip('Findings', rows|length) }}</div>
+</div>
+
+{% if rows %}
+<div class="panel" style="overflow:auto;max-height:calc(100vh - 240px)">
+  <table class="health-tbl">
+    <thead>
+      <tr>
+        <th>Kind</th><th>Code</th><th>Title</th><th>Scope</th>
+        <th>Status</th><th>Age (d)</th><th>As of</th><th>Revalidation</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      {#- defensive: age column may be age_days / age / staleness_days -#}
+      {% set age = r.age_days if r.age_days is defined
+                   else (r.age if r.age is defined
+                   else (r.staleness_days if r.staleness_days is defined else None)) %}
+      {% set stale = (r.status is defined and r.status != 'settled') or (age is not none and age > 60) %}
+      <tr class="{% if stale %}attn{% endif %}">
+        <td class="h-kind">{{ r.kind if r.kind is defined else '—' }}</td>
+        <td><span class="code-chip code-dev">{{ r.code }}</span></td>
+        <td>{{ r.title }}</td>
+        <td class="dim">{{ r.scope if r.scope is defined else '' }}</td>
+        <td><span class="h-stat {% if r.status is defined and r.status != 'settled' %}bad{% endif %}">{{ r.status if r.status is defined else '—' }}</span></td>
+        <td class="h-age {% if age is not none and age > 60 %}old{% endif %}">{{ age if age is not none else '—' }}</td>
+        <td class="dim">{{ r.as_of if r.as_of is defined and r.as_of else '—' }}</td>
+        <td class="dim">{{ r.revalidation_query if r.revalidation_query is defined and r.revalidation_query else '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="panel">{{ empty_state('∅', 'No findings to monitor yet.') }}</div>
+{% endif %}
+
+{% endblock %}

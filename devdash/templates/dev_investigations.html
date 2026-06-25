@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field_expand, count_chip, empty_state %}
+{% block title %} · Investigations (I){% endblock %}
+{% block content %}
+
+<div class="page-header dom-dev">
+  <div>
+    <div class="page-title"><span class="dom-tag dom-dev">investigations</span>I### · The process</div>
+    <div class="page-sub">The reconstructable epistemic chain — source --raised→ I### --produced→ Q###/RS###</div>
+  </div>
+  <div class="chart-meta">{{ count_chip('View', rows|length) }}</div>
+</div>
+
+{% if rows %}
+<div class="dev-grid">
+  {% for d in rows %}
+  <article class="dev-card status-{{ d.status }}">
+    <header class="dev-head">
+      <span class="code-chip code-dev">{{ d.code }}</span>
+      <span class="dim">{{ d.date }}</span>
+      <span class="scope-tag">{{ d.scope }}</span>
+      {% if d.status %}<span class="scope-tag">{{ d.status }}</span>{% endif %}
+      {% if d.as_of %}<span class="scope-tag" title="as_of">{{ d.as_of }}</span>{% endif %}
+      {% if d.recognition_key %}<span class="scope-tag" title="recognition_key">⊙ {{ d.recognition_key }}</span>{% endif %}
+    </header>
+    <div class="dev-card-title">{{ d.title }}</div>
+    <div class="dev-card-meta">
+      {{ field_expand('Question', d.question) }}
+      {{ field_expand('Method', d.method) }}
+      {{ field_expand('Findings', d.findings) }}
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="panel">{{ empty_state('∅', 'No investigations yet.') }}</div>
+{% endif %}
+
+{% endblock %}

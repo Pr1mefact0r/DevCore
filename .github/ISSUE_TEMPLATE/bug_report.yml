@@ -1,0 +1,58 @@
+name: Bug Report
+description: Report a bug in {{PROJECT_NAME}}
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please fill out the fields below.
+        Bug will be logged in `dev/documentation.db` (table `bugs`) via `/dev-bug-log`.
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Which v_X.Y are you running?
+      placeholder: v_0.1
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - critical (data loss, wrong DB writes)
+        - behavioral (wrong results)
+        - edge_case (specific conditions only)
+        - minor (cosmetic, workaround exists)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: What happened? What did you expect?
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Where was this found? Which skill, module, or query?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this?
+
+  - type: textarea
+    id: analysis
+    attributes:
+      label: Initial Analysis
+      description: Any thoughts on what might be causing this?

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field_expand, count_chip, empty_state %}
+{% block title %} · Rules (PR){% endblock %}
+{% block content %}
+
+{% set active_n  = counts.get('active', 0) %}
+{% set retired_n = counts.get('retired', 0) %}
+{% set total_n   = active_n + retired_n %}
+
+<div class="page-header dom-dev">
+  <div>
+    <div class="page-title"><span class="dom-tag dom-dev">projectrules</span>PR### · Project rules</div>
+    <div class="page-sub">Operational invariants · distinct from decisions (which are historical)</div>
+  </div>
+  <div class="chart-meta">
+    {{ count_chip('Total',   total_n) }}
+    {{ count_chip('Active',  active_n,  tone='pos') }}
+    {{ count_chip('Retired', retired_n) }}
+  </div>
+</div>
+
+<div class="filter-bar">
+  <div class="fg">
+    <span class="filter-lbl">View</span>
+    <a href="/projectrules"          class="fg-opt {% if not active %}active{% endif %}">All <span class="fg-count">{{ total_n }}</span></a>
+    <a href="/projectrules?active=1" class="fg-opt {% if active %}active{% endif %}">Active <span class="fg-count">{{ active_n }}</span></a>
+  </div>
+</div>
+
+{% if rows %}
+<div class="dev-grid">
+  {% for p in rows %}
+  <article class="dev-card status-{{ p.status }}">
+    <header class="dev-head">
+      <span class="code-chip code-dev">{{ p.code }}</span>
+      <span class="dim">{{ p.date }}</span>
+      <span class="scope-tag">{{ p.scope }}</span>
+      {% if p.status %}<span class="status status-{{ p.status }}" style="margin-left:auto">{{ p.status }}</span>{% endif %}
+    </header>
+    <div class="dev-card-title">{{ p.title }}</div>
+    <div class="dev-card-meta">
+      {{ field_expand('Rule', p.rule) }}
+      {{ field_expand('Rationale', p.rationale) }}
+      {% if p.source_ref %}
+      <div class="field">
+        <span class="lbl">Source</span>
+        <span class="val">← {{ p.source_ref }}</span>
+      </div>
+      {% endif %}
+      {% if p.retired_at %}
+      <div class="field">
+        <span class="lbl">Retired at</span>
+        <span class="val dim">{{ p.retired_at }}</span>
+      </div>
+      {% endif %}
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="panel">{{ empty_state('∅', 'No project rules match the current filter.') }}</div>
+{% endif %}
+
+{% endblock %}

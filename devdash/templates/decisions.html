@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field_expand, count_chip, empty_state %}
+{% block title %} · Decisions{% endblock %}
+{% block content %}
+
+<div class="page-header dom-dev">
+  <div>
+    <div class="page-title"><span class="dom-tag dom-dev">decisions</span>D### · Architecture log</div>
+    <div class="page-sub">Append-only design record · why each call was made</div>
+  </div>
+  <div class="chart-meta">{{ count_chip('View', rows|length) }}</div>
+</div>
+
+{% set scopes = rows | map(attribute='scope') | reject('none') | unique | sort | list %}
+<div class="filter-bar">
+  <div class="fg">
+    <span class="filter-lbl">Scope</span>
+    <a href="/decisions" class="fg-opt {% if not scope %}active{% endif %}">All</a>
+    {% for s in scopes %}
+      <a href="/decisions?scope={{ s }}"
+         class="fg-opt {% if scope == s %}active{% endif %}">{{ s }}</a>
+    {% endfor %}
+  </div>
+</div>
+
+{% if rows %}
+<div class="dev-grid">
+  {% for d in rows %}
+  <article class="dev-card">
+    <header class="dev-head">
+      <span class="code-chip code-dev">{{ d.code }}</span>
+      <span class="dim">{{ d.date }}</span>
+      <span class="scope-tag">{{ d.scope }}</span>
+    </header>
+    <div class="dev-card-title">{{ d.title }}</div>
+    <div class="dev-card-meta">
+      {{ field_expand('Decision', d.decision) }}
+      {{ field_expand('Rationale', d.rationale) }}
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="panel">{{ empty_state('∅', 'No decisions match the current filter.') }}</div>
+{% endif %}
+
+{% endblock %}

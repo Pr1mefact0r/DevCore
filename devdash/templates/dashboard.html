@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% from "_macros.html" import count_chip, empty_state %}
+{% block title %}Overview{% endblock %}
+{% block content %}
+
+<div class="page-header dom-dev">
+  <div>
+    <div class="page-title"><span class="dom-tag dom-dev">devcore</span>Dev memory</div>
+    <div class="page-sub">read-only browser view · documentation.db</div>
+  </div>
+  <div class="chart-meta">
+    {{ count_chip('Decisions', stats.decisions) }}
+    {{ count_chip('Open bugs', stats.open_bugs, tone='warn' if stats.open_bugs else '') }}
+    {{ count_chip('Open targets', stats.open_targets) }}
+    {{ count_chip('Active obs', stats.active_observations) }}
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat">
+    <span class="lbl">Decisions</span>
+    <span class="big">{{ stats.decisions }}</span>
+    <span class="sub">D### · architecture log</span>
+  </div>
+  <div class="stat">
+    <span class="lbl">Bugs · open</span>
+    <span class="big">{{ stats.open_bugs }}</span>
+    <span class="sub">{{ stats.fixed_bugs }} fixed</span>
+  </div>
+  <div class="stat">
+    <span class="lbl">Targets · open</span>
+    <span class="big">{{ stats.open_targets }}</span>
+    <span class="sub">{{ stats.done_targets }} done</span>
+  </div>
+  <div class="stat">
+    <span class="lbl">Observations</span>
+    <span class="big">{{ stats.active_observations }}</span>
+    <span class="sub">W### · active watch list</span>
+  </div>
+  <div class="stat">
+    <span class="lbl">Changelog</span>
+    <span class="big">{{ stats.changelog_entries }}</span>
+    <span class="sub">entries · narrative log</span>
+  </div>
+  {% if stats.adjudications is defined %}
+  <div class="stat">
+    <span class="lbl">Adjudications</span>
+    <span class="big">{{ stats.adjudications }}</span>
+    <span class="sub">Q### · settled facts</span>
+  </div>
+  {% endif %}
+  {% if stats.resolutions is defined %}
+  <div class="stat">
+    <span class="lbl">Resolutions</span>
+    <span class="big">{{ stats.resolutions }}</span>
+    <span class="sub">RS### · reusable precedents</span>
+  </div>
+  {% endif %}
+  {% if stats.investigations is defined %}
+  <div class="stat">
+    <span class="lbl">Investigations</span>
+    <span class="big">{{ stats.investigations }}</span>
+    <span class="sub">I### · open processes</span>
+  </div>
+  {% endif %}
+  {% if stats.ideas is defined %}
+  <div class="stat">
+    <span class="lbl">Ideas</span>
+    <span class="big">{{ stats.ideas }}</span>
+    <span class="sub">IDEA### · raw thoughts</span>
+  </div>
+  {% endif %}
+  {% if stats.active_reminders is defined %}
+  <div class="stat">
+    <span class="lbl">Reminders</span>
+    <span class="big">{{ stats.active_reminders }}</span>
+    <span class="sub">R### · conditional triggers</span>
+  </div>
+  {% endif %}
+  {% if stats.projectrules is defined %}
+  <div class="stat">
+    <span class="lbl">Rules · active</span>
+    <span class="big">{{ stats.projectrules }}</span>
+    <span class="sub">PR### · binding rules</span>
+  </div>
+  {% endif %}
+</div>
+
+<div class="grid">
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Recent decisions</h2>
+      <a href="/decisions" class="dim" style="font-size:10px;letter-spacing:.1em;text-transform:uppercase">all →</a>
+    </div>
+    {% if recent_decisions %}
+    <table>
+      <thead><tr><th>Code</th><th>Date</th><th>Scope</th><th>Title</th></tr></thead>
+      <tbody>
+      {% for d in recent_decisions %}
+      <tr>
+        <td><span class="code-chip code-dev">{{ d.code }}</span></td>
+        <td class="dim">{{ d.date }}</td>
+        <td><span class="scope-tag">{{ d.scope }}</span></td>
+        <td class="title">{{ d.title }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}{{ empty_state('—', 'No decisions logged yet.') }}{% endif %}
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Open bugs</h2>
+      <a href="/bugs?status=open" class="dim" style="font-size:10px;letter-spacing:.1em;text-transform:uppercase">all →</a>
+    </div>
+    {% if open_bugs %}
+    <table>
+      <thead><tr><th>Code</th><th>Sev</th><th>Title</th></tr></thead>
+      <tbody>
+      {% for b in open_bugs %}
+      <tr>
+        <td><span class="code-chip code-dev">{{ b.code }}</span></td>
+        <td><span class="sev sev-{{ b.severity }}">{{ b.severity or '—' }}</span></td>
+        <td class="title">{{ b.title }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}{{ empty_state('✓', 'No open bugs.') }}{% endif %}
+  </div>
+</div>
+
+<div class="grid">
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Top targets</h2>
+      <a href="/targets" class="dim" style="font-size:10px;letter-spacing:.1em;text-transform:uppercase">all →</a>
+    </div>
+    {% if top_targets %}
+    <table>
+      <thead><tr><th class="num">Prio</th><th>Code</th><th>Scope</th><th>Title</th></tr></thead>
+      <tbody>
+      {% for t in top_targets %}
+      <tr>
+        <td class="num"><span class="prio prio-{{ t.priority }}">{{ t.priority }}</span></td>
+        <td>{% if t.code %}<span class="code-chip code-dev">{{ t.code }}</span>{% else %}<span class="dim">#{{ t.id }}</span>{% endif %}</td>
+        <td><span class="scope-tag">{{ t.scope }}</span></td>
+        <td class="title">{{ t.title }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}{{ empty_state('—', 'No open targets.') }}{% endif %}
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Recent changelog</h2>
+      <a href="/changelog" class="dim" style="font-size:10px;letter-spacing:.1em;text-transform:uppercase">all →</a>
+    </div>
+    {% if recent_changelog %}
+    <table>
+      <thead><tr><th>Date</th><th>Ver</th><th>Scope</th><th>Title</th></tr></thead>
+      <tbody>
+      {% for c in recent_changelog %}
+      <tr>
+        <td class="dim">{{ c.date }}</td>
+        <td>{% if c.version %}<span class="tag">{{ c.version }}</span>{% else %}<span class="dim">—</span>{% endif %}</td>
+        <td><span class="scope-tag">{{ c.scope }}</span></td>
+        <td class="title">{{ c.title }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}{{ empty_state('—', 'No changelog entries yet.') }}{% endif %}
+  </div>
+</div>
+
+{% endblock %}
